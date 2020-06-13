@@ -1,29 +1,29 @@
-# ¤ô¤å²Î­p
-# «B¶q¸ê®Æ³B²z
-# ¼¶¼g®É¶¡¡G2020.05.29
-# BY³s¨|¦¨
+# æ°´æ–‡çµ±è¨ˆ
+# é›¨é‡è³‡æ–™è™•ç†
+# æ’°å¯«æ™‚é–“ï¼š2020.05.29
+# BYé€£è‚²æˆ
 
-# «İ§ï¶i¦a¤è
-# 1. °_©l¦~©Mµ²§ô¦~¥Îlistªí¥Ü
-# 2. 1~24©µ®É§ï¦¨¥Îlistªí¥Ü
-# 3. ­«²{´Á¥Îlistªí¥Ü
-# 4. ³Ì¾A¼Ò«¬§PÂ_¡GksÀË©wªºp-value¡A­n¦A¥[¤JAIC©ÎBIC«ü¼Ğ
+# å¾…æ”¹é€²åœ°æ–¹
+# 1. èµ·å§‹å¹´å’ŒçµæŸå¹´ç”¨listè¡¨ç¤º
+# 2. 1~24å»¶æ™‚æ”¹æˆç”¨listè¡¨ç¤º
+# 3. é‡ç¾æœŸç”¨listè¡¨ç¤º
+# 4. æœ€é©æ¨¡å‹åˆ¤æ–·ï¼šksæª¢å®šçš„p-valueï¼Œè¦å†åŠ å…¥AICæˆ–BICæŒ‡æ¨™
 
-rm(list = ls()) # §R°£¸ê®Æ
+rm(list = ls()) # åˆªé™¤è³‡æ–™
 
 library(fitdistrplus) #
 library(FAdist) 
-library(openxlsx) # ¥i¥HÅª¨ú¸ê®Æ¶q¤jªºÀÉ®×
+library(openxlsx) # å¯ä»¥è®€å–è³‡æ–™é‡å¤§çš„æª”æ¡ˆ
 library(dplyr)
 library(grDevices)
-library(stats) # ¾÷²v¤À¥¬®M¥ó
-library(actuar) # ¾÷²v¤À¥¬®M¥ó
+library(stats) # æ©Ÿç‡åˆ†å¸ƒå¥—ä»¶
+library(actuar) # æ©Ÿç‡åˆ†å¸ƒå¥—ä»¶
 library(gumbel)
-library(EnvStats) # ¦ô­pgumbleªº°Ñ¼Æ
+library(EnvStats) # ä¼°è¨ˆgumbleçš„åƒæ•¸
 library(goft)
-library(ggplot2) #µe¹Ï¥Î
+library(ggplot2) #ç•«åœ–ç”¨
 
-# ---------------------- °Ñ¼Æ³]©w°Ï --------------
+# ---------------------- åƒæ•¸è¨­å®šå€ --------------
 
 
 
@@ -31,22 +31,22 @@ library(ggplot2) #µe¹Ï¥Î
 # ----------------------------------------
 
 
-setwd("E:/R_reading")  # data¸ê®Æ§¨¸ô®|
-# ¥ş³¡Åª¨ú
+setwd("E:/R_reading")  # dataè³‡æ–™å¤¾è·¯å¾‘
+# å…¨éƒ¨è®€å–
 rowdata <- read.xlsx(file.path(getwd(), "daton_1987-2019.xlsx"), 
-                  sheet= "rainfall" ,skipEmptyRows = TRUE,skipEmptyCols = TRUE,
-                  na.strings = "NA") 
-# ºI¨ú»İ­nªº¸ê®Æ
+                     sheet= "rainfall" ,skipEmptyRows = TRUE,skipEmptyCols = TRUE,
+                     na.strings = "NA") 
+# æˆªå–éœ€è¦çš„è³‡æ–™
 data <- rowdata[ ,7:30]
 
-# ÀË¬d¸ê®Æ
+# æª¢æŸ¥è³‡æ–™
 sum(is.na(data))
 sum(data=="null")
 sum(data==-999997)
-data[is.na(data)] <- 0 #§âNA­È´«¦¨0
-data[data<0] <- 0  #§â­t¼Æ´«¦¨0
+data[is.na(data)] <- 0 #æŠŠNAå€¼æ›æˆ0
+data[data<0] <- 0  #æŠŠè² æ•¸æ›æˆ0
 
-# ¶|¦~ªº§PÂ_¨ç¼Æ
+# é–å¹´çš„åˆ¤æ–·å‡½æ•¸
 leap_year <- function(date) {
   if (is.numeric(date)) {
     year <- date
@@ -57,71 +57,71 @@ leap_year <- function(date) {
 }
 
 
-#  ¸ê®Æ¤À³Î
+#  è³‡æ–™åˆ†å‰²
 
-yi <- 1987 #½Ğ¿é¤J:°_©l¦~¤À
-yend <- 2019 #½Ğ¿é¤J:µ²§ô¦~¤À
+yi <- 1987 #è«‹è¼¸å…¥:èµ·å§‹å¹´åˆ†
+yend <- 2019 #è«‹è¼¸å…¥:çµæŸå¹´åˆ†
 y <- c(yi:yend)
 daycut <- c()
-d <- 1 # ²Ä¤@µ§«B¶q¸ê®Æ¦ì¸m
+d <- 1 # ç¬¬ä¸€ç­†é›¨é‡è³‡æ–™ä½ç½®
 for(i in c(yi:yend)){
   if(leap_year(i)){
-    delta_d <- 365 # ¶|¦~+365¤Ñ
+    delta_d <- 365 # é–å¹´+365å¤©
     d <- d + delta_d
   }else{
-    delta_d <- 364 # ¥­¦~+364¤Ñ
+    delta_d <- 364 # å¹³å¹´+364å¤©
     d <- d + delta_d}
-
+  
   #print(delta_d)
-  daycut <- append(daycut,d) #¨C¤@¦~ªº³Ì«á¤@¤Ñ
+  daycut <- append(daycut,d) #æ¯ä¸€å¹´çš„æœ€å¾Œä¸€å¤©
   d <- d + 1
-
+  
 }
 
-# ¤À¦¨¨C¦~¤@²Õ¼Æ¾Ú¡A­pºâ¦U©µ®É¤U³Ì¤j­°«B²`«×
-# Àx¦s¦bm¯x°}¸Ì
+# åˆ†æˆæ¯å¹´ä¸€çµ„æ•¸æ“šï¼Œè¨ˆç®—å„å»¶æ™‚ä¸‹æœ€å¤§é™é›¨æ·±åº¦
+# å„²å­˜åœ¨mçŸ©é™£è£¡
 
 m <- matrix(nrow=33, ncol=24)
 a <- 1
 j <- 0
-for (i in 1:length(daycut)){  #¥H¨C¦~ªº³Ì«á¤@¤Ñ·í§@¤ÁÂI¡A§â¨C¦~ªº¸ê®Æ¤À³Î¥X¨Ó
+for (i in 1:length(daycut)){  #ä»¥æ¯å¹´çš„æœ€å¾Œä¸€å¤©ç•¶ä½œåˆ‡é»ï¼ŒæŠŠæ¯å¹´çš„è³‡æ–™åˆ†å‰²å‡ºä¾†
   y <- slice(data, a:daycut[i])
   x <- c()
-  for (j in 1:length(y[,1])){ # j ¬°·í¦~¤Ñ¼Æ:365 or 366
-    x <- append(x, y[j,]) # ¤w¥[¤J²Ä j ¤Ñ¸ê®Æ¨ì x¡Ax¬°¨C¦~ªº¼Æ¾Ú
+  for (j in 1:length(y[,1])){ # j ç‚ºç•¶å¹´å¤©æ•¸:365 or 366
+    x <- append(x, y[j,]) # å·²åŠ å…¥ç¬¬ j å¤©è³‡æ–™åˆ° xï¼Œxç‚ºæ¯å¹´çš„æ•¸æ“š
     j <- j+1
   }
   yi <- c()
   yi <- as.matrix(x)
-  yi <- as.numeric(yi) # ¨C¦~¦³ (¤@¦~¤Ñ¼Æ*24¤p®É)µ§¸ê®Æ
-  print(paste0("¤w¤À³Î¥X²Ä",i,"¦~¸ê®Æ"))
-  print(paste0("·í¦~¸ê®Æ¼Æ¶q",length(yi),"µ§")) 
-  for(h in c(0:23)){  # ©µ®É1¤p®É¨ì©µ®É24¤p®É
-    print(paste0("©µ®É",h+1,"¤p®É"))
+  yi <- as.numeric(yi) # æ¯å¹´æœ‰ (ä¸€å¹´å¤©æ•¸*24å°æ™‚)ç­†è³‡æ–™
+  print(paste0("å·²åˆ†å‰²å‡ºç¬¬",i,"å¹´è³‡æ–™"))
+  print(paste0("ç•¶å¹´è³‡æ–™æ•¸é‡",length(yi),"ç­†")) 
+  for(h in c(0:23)){  # å»¶æ™‚1å°æ™‚åˆ°å»¶æ™‚24å°æ™‚
+    print(paste0("å»¶æ™‚",h+1,"å°æ™‚"))
     f <- c()
-    for(n in 1:length(yi)){  # ¦ì¸m½s¸¹ 1:(365*24)
+    for(n in 1:length(yi)){  # ä½ç½®ç·¨è™Ÿ 1:(365*24)
       if (h==0){
-          f <- append(f,yi[n]) # ³sÄò¤@¤p®É
+        f <- append(f,yi[n]) # é€£çºŒä¸€å°æ™‚
       }else{
-      yi[n][is.na(yi[n])] <- 0 # ¦pªG¬ONA¡Aµ¹­È0
-      yi[n+h][is.na(yi[n+h])] <- 0 # ¦pªG¬ONA¡Aµ¹­È0
-      f <- append(f, sum(yi[n:(n+h)]))# ²Än­Ó¦ì¸m©¹«áh©µ®É¡A¥[Á`
-          ##¥i´cªº "(" n+h ")" ¡A®`§Ú·d¤F¤T¤Ñ!!!!!!!!!!!!!!
+        yi[n][is.na(yi[n])] <- 0 # å¦‚æœæ˜¯NAï¼Œçµ¦å€¼0
+        yi[n+h][is.na(yi[n+h])] <- 0 # å¦‚æœæ˜¯NAï¼Œçµ¦å€¼0
+        f <- append(f, sum(yi[n:(n+h)]))# ç¬¬nå€‹ä½ç½®å¾€å¾Œhå»¶æ™‚ï¼ŒåŠ ç¸½
+        ##å¯æƒ¡çš„ "(" n+h ")" ï¼Œå®³æˆ‘æäº†ä¸‰å¤©!!!!!!!!!!!!!!
       }
     }
-    m[i,h+1] <- max(f,na.rm=TRUE)  #¨ú¨C­Ó©µ®Éªº³Ì¤j­È¡A¥B±Ë±óNA­È
+    m[i,h+1] <- max(f,na.rm=TRUE)  #å–æ¯å€‹å»¶æ™‚çš„æœ€å¤§å€¼ï¼Œä¸”æ¨æ£„NAå€¼
   }
-  print(paste0("²Ä",i,"¦~©µ®É",h+1,"¤p®É§¹¦¨"))
-  a <- daycut[i] + 1 # ¬°¤U¤@¦~ªº°_©l¤é +1
+  print(paste0("ç¬¬",i,"å¹´å»¶æ™‚",h+1,"å°æ™‚å®Œæˆ"))
+  a <- daycut[i] + 1 # ç‚ºä¸‹ä¸€å¹´çš„èµ·å§‹æ—¥ +1
 }
 
 
-m <- m[rowSums(m==0)==0,] # §â¦³0ªº¨º¦~¸ê®Æ§R°£
+m <- m[rowSums(m==0)==0,] # æŠŠæœ‰0çš„é‚£å¹´è³‡æ–™åˆªé™¤
 
 
 # ----------------------------------------------------------------------
 
-print("°Ñ¼Æ¦ô­p")
+print("åƒæ•¸ä¼°è¨ˆ")
 candidate <- c("norm","lnorm","gumbel","gamma3","lgamma3")
 
 dgumbel <- function(x, a, b) 1/b*exp((a-x)/b)*exp(-exp((a-x)/b))
@@ -131,10 +131,10 @@ qgumbel <- function(p, a, b) a-b*log(-log(p))
 
 dist.table <- matrix(nrow=length(candidate)+1,ncol=24)
 rownames(dist.table) <- c("norm","lnorm","gumbel","gamma3","lgamma3","good dist")
-#dist.table[(length(candidate)+1),] <- candidate[1] #°²³]³Ì¾A¤À¥¬¬°²Ä¤@­Ó­Ô¿ï¤À¥¬
+#dist.table[(length(candidate)+1),] <- candidate[1] #å‡è¨­æœ€é©åˆ†å¸ƒç‚ºç¬¬ä¸€å€‹å€™é¸åˆ†å¸ƒ
 for(i in 1:24){
   var <- m[,i]
-  print(paste0("©µ®É",i,"¤p®É"))
+  print(paste0("å»¶æ™‚",i,"å°æ™‚"))
   # By Maximun Likelihood Estimate Method
   for(dist in c(1:length(candidate))){
     # -------------------------- parameter estimate -----------------------
@@ -147,38 +147,38 @@ for(i in 1:24){
     #md <- fitdistr(x, distribution, start = list(parameter1 = 1, parameter2 = 1))
     if(candidate[dist] == "norm"){
       md <- fitdist(var, dist = dist.char[1])
-      par1 <- md$estimate[1] #fitting°Ñ¼Æ1
-      par2 <- md$estimate[2] #°Ñ¼Æ2
+      par1 <- md$estimate[1] #fittingåƒæ•¸1
+      par2 <- md$estimate[2] #åƒæ•¸2
       print(c(par1, par2))
     }else if(candidate[dist] == "lnorm"){
       md <- fitdist(var, dist = dist.char[1], start = list(meanlog=1, sdlog=1))
-      par1 <- md$estimate[1] #fitting°Ñ¼Æ1
-      par2 <- md$estimate[2] #°Ñ¼Æ2
+      par1 <- md$estimate[1] #fittingåƒæ•¸1
+      par2 <- md$estimate[2] #åƒæ•¸2
       print(c(par1, par2))
     }else if(candidate[dist] == "gumbel"){
       md <- eevd(var,method = "mle") 
-      par1 <- md$parameters[1] #fitting°Ñ¼Æ1
-      par2 <- md$parameters[2] #°Ñ¼Æ2
+      par1 <- md$parameters[1] #fittingåƒæ•¸1
+      par2 <- md$parameters[2] #åƒæ•¸2
       print(c(par1, par2))
     }else if(candidate[dist] == "gamma3"){
       md <- fitdist(var, dist = dist.char[1], start=list(shape=1,scale=1,thres=1),lower=c(0,0))
-      par1 <- md$estimate[1] #fitting°Ñ¼Æ1
-      par2 <- md$estimate[2] #°Ñ¼Æ2
-      par3 <- md$estimate[3] #°Ñ¼Æ3
+      par1 <- md$estimate[1] #fittingåƒæ•¸1
+      par2 <- md$estimate[2] #åƒæ•¸2
+      par3 <- md$estimate[3] #åƒæ•¸3
       print(c(par1, par2, par3))
       plot(md)
     }else if(candidate[dist] == "lgamma3"){
       md <- fitdist(var, dist = dist.char[1],start=list(shape=1,scale=1,thres=1),lower=c(0,0))
-      par1 <- md$estimate[1] #fitting°Ñ¼Æ1
-      par2 <- md$estimate[2] #°Ñ¼Æ2
-      par3 <- md$estimate[3] #°Ñ¼Æ3
+      par1 <- md$estimate[1] #fittingåƒæ•¸1
+      par2 <- md$estimate[2] #åƒæ•¸2
+      par3 <- md$estimate[3] #åƒæ•¸3
       print(c(par1, par2, par3))
       plot(md)
     }else{break}
     
-
     
-      
+    
+    
     # ------------------------------- K-S test ----------------------
     print("KS test")
     if(candidate[dist] == "norm"){xi.cdf <- get(dist.char[3])(var, par1,par2)}
@@ -188,60 +188,60 @@ for(i in 1:24){
     if(candidate[dist] == "lgamma3"){xi.cdf <- get(dist.char[3])(var, shape=par1, scale=par2, thres=par3)}
     
     result <- ks.test(var, dist.char[3], par1,par2)
-    print(paste0(candidate[dist], "ªºKSÀË©wP-value: ", result$p.value))
+    print(paste0(candidate[dist], "çš„KSæª¢å®šP-value: ", result$p.value))
     
-    # ------------- ±NP-value¾ã²z¦¨ªí®æ-------------------
+    # ------------- å°‡P-valueæ•´ç†æˆè¡¨æ ¼-------------------
     
     dist.table[dist,i] <- result$p.value
-
+    
   }
-  # ¨C­Ó©µ®ÉP-value±Æ§Ç¡AÅÜ¦¨¼Æ­È¦A±Æ§Ç
+  # æ¯å€‹å»¶æ™‚P-valueæ’åºï¼Œè®Šæˆæ•¸å€¼å†æ’åº
   dist.choice <- rank(as.numeric(dist.table[(1:dist),i])) 
-  dist.table[length(candidate)+1,i] <- candidate[which.max(dist.choice)] #³Ì¤jªºP-value¹ïÀ³ªº¾÷²v¤À¥¬
+  dist.table[length(candidate)+1,i] <- candidate[which.max(dist.choice)] #æœ€å¤§çš„P-valueå°æ‡‰çš„æ©Ÿç‡åˆ†å¸ƒ
   
 }
 
 
-# ----------------------- ¿é¥X¸ê®Æ ----------------
+# ----------------------- è¼¸å‡ºè³‡æ–™ ----------------
 
 file <- paste("E:/R_output/", "rainfall_return.xlsx", sep="")
-write.xlsx(m, file) # ¿é¥XÀÉ¡G¨C¦~¦U©µ®Éªº­°«B²`«×(mm)
+write.xlsx(m, file) # è¼¸å‡ºæª”ï¼šæ¯å¹´å„å»¶æ™‚çš„é™é›¨æ·±åº¦(mm)
 file <- paste("E:/R_output/", "dist_choice.xlsx", sep="")
-write.xlsx(dist.table,file) #¿é¥XÀÉ¡GK-S test ªºp-value ¤Î¦U©µ®É³Ì¾A¦X¾÷²v¤À¥¬
+write.xlsx(dist.table,file) #è¼¸å‡ºæª”ï¼šK-S test çš„p-value åŠå„å»¶æ™‚æœ€é©åˆæ©Ÿç‡åˆ†å¸ƒ
 
 
-# ¨M©w¾A¦X¤À¥¬¡Ggumbel
-## ¦U­«²{´Áªº¤ô¤å¶q
+# æ±ºå®šé©åˆåˆ†å¸ƒï¼šgumbel
+## å„é‡ç¾æœŸçš„æ°´æ–‡é‡
 
- #¿é¤J¤À¥¬¦WºÙ¡G"q"+gunbel
+#è¼¸å…¥åˆ†å¸ƒåç¨±ï¼š"q"+gunbel
 
 Ti <- c()
-Ty <- c() # ¦U©µ®É¤£¦P­«²{´Á¹ïÀ³ªº¤ô¤å¶q
+Ty <- c() # å„å»¶æ™‚ä¸åŒé‡ç¾æœŸå°æ‡‰çš„æ°´æ–‡é‡
 for(i in 1:24){
   var <- m[,i]
   dist.char <- c("qgumbel")
   md <- eevd(var,method = "mle") 
-  par1 <- md$parameters[1] #°Ñ¼Æ1
-  par2 <- md$parameters[2] #°Ñ¼Æ2
+  par1 <- md$parameters[1] #åƒæ•¸1
+  par2 <- md$parameters[2] #åƒæ•¸2
   
   Q2 <- get(dist.char)(0.5,par1,par2)
-  print(paste0("2¦~­«²{´Á¬x®p¬y¶q",Q2))
+  print(paste0("2å¹´é‡ç¾æœŸæ´ªå³°æµé‡",Q2))
   Q10 <- get(dist.char)(0.9,par1,par2)
-  print(paste0("10¦~­«²{´Á¬x®p¬y¶q",Q10))
+  print(paste0("10å¹´é‡ç¾æœŸæ´ªå³°æµé‡",Q10))
   Q50 <- get(dist.char)(0.98,par1,par2)
-  print(paste0("50¦~­«²{´Á¬x®p¬y¶q",Q50))
+  print(paste0("50å¹´é‡ç¾æœŸæ´ªå³°æµé‡",Q50))
   Q100 <- get(dist.char)(0.99,par1,par2)
-  print(paste0("100¦~­«²{´Á¬x®p¬y¶q",Q100))
+  print(paste0("100å¹´é‡ç¾æœŸæ´ªå³°æµé‡",Q100))
   
   Ti <- rbind(Q2,Q10,Q50,Q100)
   Ty <- append(Ty,Ti)
 }
 
-# ¼Æ¾Ú¾ã²z
+# æ•¸æ“šæ•´ç†
 hydro_value <- matrix(Ty,ncol=24)
 
 
-# ²Ö¿n«B¶q²`«×/¦U©µ®É = ­°«B±j«×(mm/hr)
+# ç´¯ç©é›¨é‡æ·±åº¦/å„å»¶æ™‚ = é™é›¨å¼·åº¦(mm/hr)
 for (i in c(1:24)){
   hydro_value[,i] <- hydro_value[,i]/i
 }
@@ -253,28 +253,28 @@ file <- paste("E:/R_output/", "rainfall_intensity_return_period.xlsx", sep="")
 write.xlsx(hydro_value,file)
 
 #
-horner_para <- c() #ªø«×«İ­×§ï
-dura <- c((1:24)*60)  #©µ®É¡G¤p®É->¤ÀÄÁ
-for (i in c(1:4)){ #­«²{´Á¼Æ¶q
+horner_para <- c() #é•·åº¦å¾…ä¿®æ”¹
+dura <- c((1:24)*60)  #å»¶æ™‚ï¼šå°æ™‚->åˆ†é˜
+for (i in c(1:4)){ #é‡ç¾æœŸæ•¸é‡
   hydro_value_i <- hydro_value[i,]
   horner <- nls(log((hydro_value_i)) ~ log(a)-c*log(dura+b), #Hornor empirical formula 
-      start = list(a = 1, b = 1, c = 1), control = list(maxiter = 50), trace = T) 
+                start = list(a = 1, b = 1, c = 1), control = list(maxiter = 50), trace = T) 
   para <- coef(horner)
   horner_para <- append(horner_para,para)
   #c <- cbind(horner_para)
 }
 #c <- cbind(horner_para)
 horner_para <- rbind(horner_para[1:3],horner_para[4:6],horner_para[7:9],horner_para[10:12])
-rownames(horner_para) <- c(paste0("­«²{´Á",c(2,10,50,100),"¦~"))
+rownames(horner_para) <- c(paste0("é‡ç¾æœŸ",c(2,10,50,100),"å¹´"))
 horner_para <- round(horner_para, digits = 2)
 print(horner_para)
 
 file <- paste("E:/R_output/", "dist_choice.xlsx", sep="")
 write.xlsx(dist.table,file)
 
-#----Ã¸ IDF ¦±½u plot IDF Curve---- 
+#----ç¹ª IDF æ›²ç·š plot IDF Curve---- 
 color <- c("Red", "Black", "Blue", "aquamarine3")
-Tyr <- c(2,10,50,100) # ­«²{´Á
+Tyr <- c(2,10,50,100) # é‡ç¾æœŸ
 for(i in c(1:length(Tyr))){ 
   a <- horner_para[i, 1]
   b <- horner_para[i, 2]
